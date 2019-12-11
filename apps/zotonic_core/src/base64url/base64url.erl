@@ -179,7 +179,7 @@ mime_decode_to_string(List) when is_list(List) ->
     mime_decode_l(List).
 
 %% One-based decode map.
--define(DECODE_MAP,
+decode_map() ->
     {bad, bad, bad, bad, bad, bad, bad, bad, ws, ws, bad, bad, ws, bad, bad, %1-15
         bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, %16-31
         ws, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, 62, bad, bad, %32-47
@@ -195,10 +195,10 @@ mime_decode_to_string(List) when is_list(List) ->
         bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
         bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
         bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
-        bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad}).
+        bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad}.
 
 decode_binary(Result0, <<C:8, T0/bits>>) ->
-    case element(C, ?DECODE_MAP) of
+    case element(C, decode_map()) of
         bad ->
             erlang:error({badarg, C});
         ws ->
@@ -226,7 +226,7 @@ decode_binary(Result, <<>>) ->
 mime_decode_binary(Result, <<0:8, T/bits>>) ->
     mime_decode_binary(Result, T);
 mime_decode_binary(Result0, <<C:8, T/bits>>) ->
-    case element(C, ?DECODE_MAP) of
+    case element(C, decode_map()) of
         Bits when is_integer(Bits) ->
             mime_decode_binary(<<Result0/bits, Bits:6>>, T);
         eq ->
@@ -271,10 +271,10 @@ decode([C4, C3, C2, C1 | Cs], A) ->
 %%%========================================================================
 
 strip_spaces([], A) -> A;
-strip_spaces([$\s | Cs], A) -> strip_spaces(Cs, A);
-strip_spaces([$\t | Cs], A) -> strip_spaces(Cs, A);
-strip_spaces([$\r | Cs], A) -> strip_spaces(Cs, A);
-strip_spaces([$\n | Cs], A) -> strip_spaces(Cs, A);
+% strip_spaces([$\s | Cs], A) -> strip_spaces(Cs, A);
+% strip_spaces([$\t | Cs], A) -> strip_spaces(Cs, A);
+% strip_spaces([$\r | Cs], A) -> strip_spaces(Cs, A);
+% strip_spaces([$\n | Cs], A) -> strip_spaces(Cs, A);
 strip_spaces([C | Cs], A) -> strip_spaces(Cs, [C | A]).
 
 strip_ws(<<$\t, T/binary>>) ->
@@ -287,21 +287,21 @@ strip_ws(<<$\s, T/binary>>) ->
     strip_ws(T);
 strip_ws(T) -> T.
 
-strip_illegal([0 | Cs], A) ->
-    strip_illegal(Cs, A);
+% strip_illegal([0 | Cs], A) ->
+%     strip_illegal(Cs, A);
 strip_illegal([C | Cs], A) ->
-    case element(C, ?DECODE_MAP) of
+    case element(C, decode_map()) of
         bad -> strip_illegal(Cs, A);
         ws -> strip_illegal(Cs, A);
-        eq -> strip_illegal_end(Cs, [$= | A]);
+        % eq -> strip_illegal_end(Cs, [$= | A]);
         _ -> strip_illegal(Cs, [C | A])
     end;
 strip_illegal([], A) -> A.
 
-strip_illegal_end([0 | Cs], A) ->
-    strip_illegal_end(Cs, A);
+% strip_illegal_end([0 | Cs], A) ->
+ %   strip_illegal_end(Cs, A);
 strip_illegal_end([C | Cs], A) ->
-    case element(C, ?DECODE_MAP) of
+    case element(C, decode_map()) of
         bad -> strip_illegal(Cs, A);
         ws -> strip_illegal(Cs, A);
         eq -> [C | A];
@@ -324,6 +324,6 @@ b64e(X) ->
 
 
 b64d(X) ->
-    b64d_ok(element(X, ?DECODE_MAP)).
+    b64d_ok(element(X, decode_map())).
 
 b64d_ok(I) when is_integer(I) -> I.
