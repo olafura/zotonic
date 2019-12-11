@@ -54,3 +54,8 @@ _checkouts
 
 .DS_Store
 zotonic.tmproj
+
+apps/*/log/
+
+# Elixir
+apps/*/deps/
