@@ -1,6 +1,6 @@
 defmodule :zotonic_core do
   def is_testsandbox do
-      case :erlang.atom_to_list(node()) do
+    case :erlang.atom_to_list(node()) do
       'zotonic001_testsandbox@' ++ _ ->
         true
 
@@ -110,7 +110,7 @@ defmodule :zotonic_core do
   def mnesia_dir_append_node(dir) do
     mnesia_dir = :filename.join([dir, :erlang.atom_to_list(node())])
 
-    case :z_filelib.ensure_dir(mnesia_dir)  do
+    case :z_filelib.ensure_dir(mnesia_dir) do
       :ok ->
         :application.set_env(:mnesia, :dir, mnesia_dir)
         {:ok, mnesia_dir}
